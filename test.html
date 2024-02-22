@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบฟอร์มแสดงข้อมูลทุเรียน</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"],
+        input[type="button"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover,
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>แบบฟอร์มแสดงข้อมูลทุเรียน</h2>
+        <form id="myForm">
+            <div class="form-group">
+                <label for="name">วันที่:</label>
+                <input type="date" id="name" name="name" required>
+            </div>
+            <label for="choice">รายการ:</label>
+            <div class="form-group">
+                <select id="choice" name="choice" required>
+                    <option value="">โปรดเลือก</option>
+                    <option value="รดน้ำ">รดน้ำ</option>
+                    <option value="ใส่ปุ๋ย">ใส่ปุ๋ย</option>
+                    <option value="ฉีดยา">ฉีดยา</option>
+                    <option value="อาหารเสริม">อาหารเสริม</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="message">ข้อความ:</label>
+                <textarea id="message" name="message" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="ส่งข้อมูล">
+                <input type="button" value="ล้างข้อมูล" onclick="clearForm()">
+            </div>
+        </form>
+        <div id="tableContainer"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('myForm');
+        const tableContainer = document.getElementById('tableContainer');
+        let tableData = JSON.parse(localStorage.getItem('tableData')) || [];
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = {};
+            for (const [key, value] of formData) {
+                data[key] = value;
+            }
+            tableData.push(data);
+            localStorage.setItem('tableData', JSON.stringify(tableData));
+            displayTable();
+            this.reset();
+        });
+
+        function displayTable() {
+            // Clear existing table
+            tableContainer.innerHTML = '';
+
+            const table = document.createElement('table');
+            const headers = Object.keys(tableData[0]);
+            const headerRow = document.createElement('tr');
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                if (headerText === 'name') {
+                    th.textContent = 'วันที่';
+                } else if (headerText === 'choice') {
+                    th.textContent = 'รายการ';
+                } else if (headerText === 'message') {
+                    th.textContent = 'รายละเอียด';
+                } else {
+                    th.textContent = headerText;
+                }
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+            tableData.forEach(rowData => {
+                const row = document.createElement('tr');
+                headers.forEach(headerText => {
+                    const cell = document.createElement('td');
+                    cell.textContent = rowData[headerText];
+                    row.appendChild(cell);
+                });
+                table.appendChild(row);
+            });
+            tableContainer.appendChild(table);
+        }
+
+        // Clear form data
+        function clearForm() {
+            form.reset();
+        }
+
+        // Display existing table data on page load
+        displayTable();
+    </script>
+</body>
+</html>
